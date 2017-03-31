@@ -25,9 +25,8 @@ class Member(models.Model):
 
 
 Then in the admin you can add links on the `Group` *change page* to the
-`Member` *change list page* (a link to all the members of that group) and on
-the `Member` *change page* a link to the `Group` *change page* (a link to the
-group of that member).
+`Member` *change list page* (all the members of that group) and on the `Member`
+*change page* a link to the `Group` *change page* (the group of that member).
 
 ```python
 from django.contrib import admin
@@ -35,13 +34,13 @@ from admin_relation_links import AdminChangeLinksMixin
 
 
 @admin.register(Group)
-class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
+class GroupAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
     list_display = ['name']
     changelist_links = ['member']
 
 
 @admin.register(Member)
-class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
+class MemberAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
     list_display = ['name']
     change_links = ['group']
 ```
