@@ -149,7 +149,7 @@ class AdminChangeLinksMixin():
             return lookup_filter or camel_case_to_underscore(instance._meta.object_name)
 
         def get_label():
-            return label or '{}s'.format(target_model_name.capitalize())
+            return label or '{}s'.format(target_model_name.replace('_', ' ').capitalize())
 
         return self.get_link_field(
             '{}?{}={}'.format(get_url(), get_lookup_filter(), instance.id),
