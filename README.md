@@ -2,6 +2,12 @@
 
 An easy way to add links to relations in the Django Admin site.
 
+### Install
+
+    pip install django-admin-relation-links
+
+### How to use
+
 The links are placed on the *change page* of the model and go to the *change
 list page* or the *change page* of the related model, depending on whether the
 related model has a `ForeignKey` to this model or this model has a `ForeignKey`
@@ -44,3 +50,27 @@ class MemberAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
     list_display = ['name']
     change_links = ['group']
 ```
+
+
+### Extra options
+
+You can also set extra options like `label` and `lookup_filter` like this:
+
+```python
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
+    list_display = ['name']
+    change_links = [
+        ('member', {
+            'label': 'All members',
+            'lookup_filter': 'user_group'
+        })
+    ]
+```
+
+So instead of the string of the related model, you use a tuple where the first
+item is the name of the related model, and the second item is a dict with the
+extra options. The `label` parameter sets the label used for the link in the
+admin interface. The `lookup_filter` parameter sets the GET param used for
+filtering in the URL. By default that's the lowercase name of the model, but
+that might not always be the same on the related object.
