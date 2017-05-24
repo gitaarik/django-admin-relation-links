@@ -60,7 +60,7 @@ You can also set extra options like `label` and `lookup_filter` like this:
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
     list_display = ['name']
-    change_links = [
+    changelist_links = [
         ('member', {
             'label': 'All members',
             'lookup_filter': 'user_group'
