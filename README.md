@@ -40,13 +40,13 @@ from admin_relation_links import AdminChangeLinksMixin
 
 
 @admin.register(Group)
-class GroupAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
+class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
     changelist_links = ['member']
 
 
 @admin.register(Member)
-class MemberAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
+class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
     change_links = ['group']
 ```
@@ -58,7 +58,7 @@ You can also set extra options like `label` and `lookup_filter` like this:
 
 ```python
 @admin.register(Group)
-class GroupAdmin(admin.ModelAdmin, AdminChangeLinksMixin):
+class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
     changelist_links = [
         ('member', {
