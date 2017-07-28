@@ -36,7 +36,7 @@ Then in the admin you can add links on the `Group` *change page* to the
 
 ```python
 from django.contrib import admin
-from admin_relation_links import AdminChangeLinksMixin
+from django_admin_relation_links import AdminChangeLinksMixin
 
 
 @admin.register(Group)
