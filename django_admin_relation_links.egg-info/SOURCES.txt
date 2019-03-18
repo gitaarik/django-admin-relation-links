@@ -1,0 +1,10 @@
+README.md
+setup.py
+django_admin_relation_links/__init__.py
+django_admin_relation_links/models.py
+django_admin_relation_links/options.py
+django_admin_relation_links.egg-info/PKG-INFO
+django_admin_relation_links.egg-info/SOURCES.txt
+django_admin_relation_links.egg-info/dependency_links.txt
+django_admin_relation_links.egg-info/not-zip-safe
+django_admin_relation_links.egg-info/top_level.txt

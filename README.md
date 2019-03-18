@@ -26,7 +26,7 @@ class Group(models.Model):
 
 class Member(models.Model):
     name = models.CharField(max_length=200)
-    group = models.ForeignKey(Group)
+    group = models.ForeignKey(Group, related_name='members')
 ```
 
 
@@ -42,35 +42,29 @@ from django_admin_relation_links import AdminChangeLinksMixin
 @admin.register(Group)
 class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
-    changelist_links = ['member']
+    changelist_links = ['members']  # Use the `related_name` of the `Member.group` field
 
 
 @admin.register(Member)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
-    change_links = ['group']
+    change_links = ['group']  # Just specify the name of the `ForeignKey` field
 ```
 
 
 ### Extra options
 
-You can also set extra options like `label` and `lookup_filter` like this:
+You can also set extra options like `label`, `model` and `lookup_filter` like this:
 
 ```python
 @admin.register(Group)
 class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
     changelist_links = [
-        ('member', {
-            'label': 'All members',
-            'lookup_filter': 'user_group'
+        ('members', {
+            'label': 'All members',  # Used as label for the link
+            'model': 'Member',  # Specify a different model, you can also specify an app using `app.Member`
+            'lookup_filter': 'user_group'  # Specify the GET parameter used for filtering the queryset
         })
     ]
 ```
-
-So instead of the string of the related model, you use a tuple where the first
-item is the name of the related model, and the second item is a dict with the
-extra options. The `label` parameter sets the label used for the link in the
-admin interface. The `lookup_filter` parameter sets the GET param used for
-filtering in the URL. By default that's the lowercase name of the model, but
-that might not always be the same on the related object.

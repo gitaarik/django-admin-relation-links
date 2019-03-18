@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: django-admin-relation-links
+Version: 0.1.0
+Summary: An easy way to add links to relations in the Django Admin site.
+Home-page: https://github.com/gitaarik/django-admin-relation-links/
+Author: gitaarik
+Author-email: gitaarik@gmail.com
+License: LGPL licence, see LICENCE.txt
+Description: UNKNOWN
+Keywords: django admin relation foreignkey link
+Platform: UNKNOWN
