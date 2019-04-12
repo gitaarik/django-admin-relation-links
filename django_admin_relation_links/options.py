@@ -123,7 +123,8 @@ class AdminChangeLinksMixin():
         target_instance = getattr(instance, field)
         return self.get_link_field(
             reverse(
-                'admin:{}_{}_change'.format(
+                '{}:{}_{}_change'.format(
+                    self.admin_site.name,
                     options.get('app') or target_instance._meta.app_label,
                     options.get('model') or target_instance._meta.model_name
                 ),
@@ -136,7 +137,8 @@ class AdminChangeLinksMixin():
 
         def get_url():
             return reverse(
-                'admin:{}_{}_changelist'.format(
+                '{}:{}_{}_changelist'.format(
+                    self.admin_site.name,
                     *self.get_app_model(instance, relation_name, options)
                 )
             )
