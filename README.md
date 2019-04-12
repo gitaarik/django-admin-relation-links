@@ -85,7 +85,7 @@ class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name', 'group_link']
     change_links = [
         ('group', {
-            'admin_order_field': 'name',  # Allow to sort group_link column by group__name field
+            'admin_order_field': 'group__name',  # Allow to sort members by group_link column, using group__name field
         })
     ]
 ```
