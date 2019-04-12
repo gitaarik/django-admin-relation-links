@@ -18,14 +18,14 @@ class AdminChangeLinksMixin():
     changelist_links = []
 
     def get_readonly_fields(self, request, obj=None):
-        readonly_fields = list(super().get_readonly_fields(request, obj=None))
+        readonly_fields = list(super().get_readonly_fields(request, obj))
         self.add_change_link_fields(readonly_fields)
         self.add_changelist_link_fields(readonly_fields)
         return readonly_fields
 
     def get_fields(self, request, obj=None):
 
-        fields = list(super().get_fields(request, obj=None))
+        fields = list(super().get_fields(request, obj))
 
         if not fields:
             return fields
