@@ -2,22 +2,40 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 
+def parse_field_config(links_config):
+
+    for link in links_config:
+
+        if isinstance(link, (tuple, list)):
+            model_field_name, options = (link[0], link[1])
+        else:
+            model_field_name, options = (link, {})
+
+        admin_field_name = '{}_link'.format(model_field_name)
+
+        yield model_field_name, admin_field_name, options
+
+
+def decorate_link_func(func, model_field_name, options):
+
+    func.short_description = options.get('label') or underscore_to_capitalize(model_field_name)
+
+    if options.get('admin_order_field'):
+        func.admin_order_field = options['admin_order_field']
+
+
 def underscore_to_capitalize(string):
     return string.replace('_', ' ').capitalize()
 
 
-def get_reverse_relation_name(instance, relation_name):
+def get_link_field(url, label):
+    return format_html('<a href="{}" class="changelink">{}</a>', url, label)
+
+
+def get_reverse_relation_name(instance, model_field_name):
     for obj in instance._meta.related_objects:
-        if obj.name == relation_name:
+        if obj.name == model_field_name:
             return obj.remote_field.name
-
-
-def decorate_link_func(func, relation_field_name, options):
-
-    func.short_description = options.get('label') or underscore_to_capitalize(relation_field_name)
-
-    if options.get('admin_order_field'):
-        func.admin_order_field = options['admin_order_field']
 
 
 class AdminChangeLinksMixin():
@@ -27,112 +45,26 @@ class AdminChangeLinksMixin():
 
     def __init__(self, *args, **kwargs):
         super(AdminChangeLinksMixin, self).__init__(*args, **kwargs)
-        self.add_change_link_fields()
-        self.add_changelist_link_fields()
+        self._add_change_link_fields()
+        self._add_changelist_link_fields()
 
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = list(super().get_readonly_fields(request, obj))
-        readonly_fields += [
-            field for _, field, _ in self.get_change_link_fields()
-            if field not in readonly_fields
-        ]
-        readonly_fields += [
-            field for _, field, _ in self.get_changelist_link_fields()
-            if field not in readonly_fields
-        ]
-        return readonly_fields
+    def _add_change_link_fields(self):
+        for model_field_name, admin_field_name, options in parse_field_config(self.change_links):
+            self._add_change_link(model_field_name, admin_field_name, options)
 
-    def get_fields(self, request, obj=None):
+    def _add_change_link(self, model_field_name, admin_field_name, options):
 
-        fields = list(super().get_fields(request, obj))
-
-        if not fields:
-            return fields
-
-        for _, admin_field_name, _ in self.get_change_link_fields():
-            if admin_field_name not in fields:
-                fields.append(admin_field_name)
-
-        for _, admin_field_name, _ in self.get_changelist_link_fields():
-            if admin_field_name not in fields:
-                fields.append(admin_field_name)
-
-        return fields
-
-    def get_change_link_fields(self):
-
-        for link in self.change_links:
-
-            if type(link) == tuple:
-                relation_field_name, options = (link[0], link[1])
-            else:
-                relation_field_name, options = (link, {})
-            admin_field_name = '{}_link'.format(relation_field_name)
-
-            yield relation_field_name, admin_field_name, options
-
-    def add_change_link_fields(self):
-        for relation_field_name, admin_field_name, options in self.get_change_link_fields():
-            self.add_change_link(relation_field_name, admin_field_name, options)
-
-    def add_change_link(self, relation_field_name, admin_field_name, options):
-
-        if self.field_already_set(admin_field_name):
-            return
-
-        def make_change_link(relation_field_name, options):
-
+        def make_change_link(model_field_name, options):
             def func(instance):
-                return self.get_change_link(instance, relation_field_name, options)
-
-            decorate_link_func(func, relation_field_name, options)
-
+                return self._get_change_link(instance, model_field_name, options)
+            decorate_link_func(func, model_field_name, options)
             return func
 
-        setattr(self, admin_field_name, make_change_link(relation_field_name, options))
+        self._add_admin_field(admin_field_name, make_change_link(model_field_name, options))
 
-    def add_changelist_link_fields(self):
-        for relation_name, admin_field_name, options in self.get_changelist_link_fields():
-            self.add_changelist_link(relation_name, admin_field_name, options)
-
-    def get_changelist_link_fields(self):
-
-        for link in self.changelist_links:
-
-            if type(link) == tuple:
-                field_name, options = (link[0], link[1])
-            else:
-                field_name, options = (link, {})
-
-            admin_field_name = '{}_link'.format(field_name)
-
-            yield field_name, admin_field_name, options
-
-    def add_changelist_link(self, relation_name, admin_field_name, options):
-
-        if self.field_already_set(admin_field_name):
-            return
-
-        def make_changelist_link(relation_name, options):
-
-            def func(instance):
-                return self.get_changelist_link(instance, relation_name, options)
-
-            decorate_link_func(func, relation_name, options)
-
-            return func
-
-        setattr(self, admin_field_name, make_changelist_link(relation_name, options))
-
-    def field_already_set(self, admin_field_name):
-        return getattr(self, admin_field_name, None)
-
-    def get_link_field(self, url, label):
-        return format_html('<a href="{}" class="changelink">{}</a>', url, label)
-
-    def get_change_link(self, instance, field, options):
+    def _get_change_link(self, instance, field, options):
         target_instance = getattr(instance, field)
-        return self.get_link_field(
+        return get_link_field(
             reverse(
                 '{}:{}_{}_change'.format(
                     self.admin_site.name,
@@ -141,34 +73,48 @@ class AdminChangeLinksMixin():
                 ),
                 args=[target_instance.pk]
             ),
-            target_instance
+            str(target_instance)
         )
 
-    def get_changelist_link(self, instance, relation_name, options):
+    def _add_changelist_link_fields(self):
+        for model_field_name, admin_field_name, options in parse_field_config(self.changelist_links):
+            self._add_changelist_link(model_field_name, admin_field_name, options)
+
+    def _add_changelist_link(self, model_field_name, admin_field_name, options):
+
+        def make_changelist_link(model_field_name, options):
+            def func(instance):
+                return self._get_changelist_link(instance, model_field_name, options)
+            decorate_link_func(func, model_field_name, options)
+            return func
+
+        self._add_admin_field(admin_field_name, make_changelist_link(model_field_name, options))
+
+    def _get_changelist_link(self, instance, model_field_name, options):
 
         def get_url():
             return reverse(
                 '{}:{}_{}_changelist'.format(
                     self.admin_site.name,
-                    *self.get_app_model(instance, relation_name, options)
+                    *self._get_app_model(instance, model_field_name, options)
                 )
             )
 
         def get_lookup_filter():
-            return options.get('lookup_filter') or get_reverse_relation_name(instance, relation_name)
+            return options.get('lookup_filter') or get_reverse_relation_name(instance, model_field_name)
 
         def get_label():
             return (
                 options.get('label')
-                or getattr(instance, relation_name).model._meta.verbose_name_plural.capitalize()
+                or getattr(instance, model_field_name).model._meta.verbose_name_plural.capitalize()
             )
 
-        return self.get_link_field(
+        return get_link_field(
             '{}?{}={}'.format(get_url(), get_lookup_filter(), instance.pk),
             get_label()
         )
 
-    def get_app_model(self, instance, relation_name, options):
+    def _get_app_model(self, instance, model_field_name, options):
 
         options_model = options.get('model')
 
@@ -179,8 +125,24 @@ class AdminChangeLinksMixin():
                 app = self.opts.app_label
                 model = options_model.lower()
         else:
-            model_meta = getattr(instance, relation_name).model._meta
+            model_meta = getattr(instance, model_field_name).model._meta
             app = model_meta.app_label
             model = model_meta.model_name
 
         return app, model
+
+    def _add_admin_field(self, field_name, func):
+
+        if not hasattr(self, field_name):
+            setattr(self, field_name, func)
+
+        self._add_field_to_fields(field_name)
+        self._add_field_to_readonly_fields(field_name)
+
+    def _add_field_to_fields(self, field_name):
+        if self.fields and field_name not in self.fields:
+            self.fields = list(self.fields) + [field_name]
+
+    def _add_field_to_readonly_fields(self, field_name):
+        if self.readonly_fields and field_name not in self.readonly_fields:
+            self.readonly_fields = list(self.readonly_fields) + [field_name]
