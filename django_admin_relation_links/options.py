@@ -17,10 +17,7 @@ def decorate_link_func(func, relation_field_name, options):
     func.short_description = options.get('label') or underscore_to_capitalize(relation_field_name)
 
     if options.get('admin_order_field'):
-        func.admin_order_field = '{}__{}'.format(
-            relation_field_name,
-            options['admin_order_field']
-        )
+        func.admin_order_field = options['admin_order_field']
 
 
 class AdminChangeLinksMixin():
