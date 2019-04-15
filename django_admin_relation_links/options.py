@@ -17,10 +17,21 @@ class AdminChangeLinksMixin():
     change_links = []
     changelist_links = []
 
+    def __init__(self, *args, **kwargs):
+        super(AdminChangeLinksMixin, self).__init__(*args, **kwargs)
+        self.add_change_link_fields()
+        self.add_changelist_link_fields()
+
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = list(super().get_readonly_fields(request, obj))
-        self.add_change_link_fields(readonly_fields)
-        self.add_changelist_link_fields(readonly_fields)
+        readonly_fields += [
+            field for _, field, _ in self.get_change_link_fields()
+            if field not in readonly_fields
+        ]
+        readonly_fields += [
+            field for _, field, _ in self.get_changelist_link_fields()
+            if field not in readonly_fields
+        ]
         return readonly_fields
 
     def get_fields(self, request, obj=None):
@@ -52,14 +63,11 @@ class AdminChangeLinksMixin():
 
             yield field, field_name, options
 
-    def add_change_link_fields(self, readonly_fields):
+    def add_change_link_fields(self):
 
         for field, field_name, options in self.get_change_link_fields():
 
             self.add_change_link(field, field_name, options)
-
-            if field_name not in readonly_fields:
-                readonly_fields.append(field_name)
 
     def add_change_link(self, field, field_name, options):
 
@@ -71,19 +79,18 @@ class AdminChangeLinksMixin():
             def func(instance):
                 return self.get_change_link(instance, field, options)
             func.short_description = options.get('label') or '{}'.format(field.replace('_', ' '))
+            if options.get('admin_order_field'):
+                func.admin_order_field = options['admin_order_field']
 
             return func
 
         setattr(self, field_name, make_change_link(field, options))
 
-    def add_changelist_link_fields(self, readonly_fields):
+    def add_changelist_link_fields(self):
 
         for relation_name, field_name, options in self.get_changelist_link_fields():
 
             self.add_changelist_link(relation_name, field_name, options)
-
-            if field_name not in readonly_fields:
-                readonly_fields.append(field_name)
 
     def get_changelist_link_fields(self):
 
@@ -108,6 +115,8 @@ class AdminChangeLinksMixin():
             def func(instance):
                 return self.get_changelist_link(instance, relation_name, options)
             func.short_description = options.get('label') or underscore_to_capitalize(relation_name)
+            if options.get('admin_order_field'):
+                func.admin_order_field = options['admin_order_field']
 
             return func
 
