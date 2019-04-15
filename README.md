@@ -78,14 +78,16 @@ class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     ]
 ```
 
-For showing links on list page, such extra options can be useful:
+When showing links on the list page, you can optionally specify the order field
+to order on that column:
+
 ```python
 @admin.register(Group)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name', 'group_link']
     change_links = [
         ('group', {
-            'admin_order_field': 'group__name',  # Allow to sort members by group_link column, using group__name field
+            'admin_order_field': 'name',  # Allow to sort members by `group_link` column, using `name` field of the `group` relation
         })
     ]
 ```

@@ -12,6 +12,17 @@ def get_reverse_relation_name(instance, relation_name):
             return obj.remote_field.name
 
 
+def decorate_link_func(func, relation_field_name, options):
+
+    func.short_description = options.get('label') or underscore_to_capitalize(relation_field_name)
+
+    if options.get('admin_order_field'):
+        func.admin_order_field = '{}__{}'.format(
+            relation_field_name,
+            options['admin_order_field']
+        )
+
+
 class AdminChangeLinksMixin():
 
     change_links = []
@@ -41,13 +52,13 @@ class AdminChangeLinksMixin():
         if not fields:
             return fields
 
-        for field, field_name, options in self.get_change_link_fields():
-            if field_name not in fields:
-                fields.append(field_name)
+        for _, admin_field_name, _ in self.get_change_link_fields():
+            if admin_field_name not in fields:
+                fields.append(admin_field_name)
 
-        for relation_name, field_name, options in self.get_changelist_link_fields():
-            if field_name not in fields:
-                fields.append(field_name)
+        for _, admin_field_name, _ in self.get_changelist_link_fields():
+            if admin_field_name not in fields:
+                fields.append(admin_field_name)
 
         return fields
 
@@ -56,74 +67,68 @@ class AdminChangeLinksMixin():
         for link in self.change_links:
 
             if type(link) == tuple:
-                field, options = (link[0], link[1])
+                relation_field_name, options = (link[0], link[1])
             else:
-                field, options = (link, {})
-            field_name = '{}_link'.format(field)
+                relation_field_name, options = (link, {})
+            admin_field_name = '{}_link'.format(relation_field_name)
 
-            yield field, field_name, options
+            yield relation_field_name, admin_field_name, options
 
     def add_change_link_fields(self):
+        for relation_field_name, admin_field_name, options in self.get_change_link_fields():
+            self.add_change_link(relation_field_name, admin_field_name, options)
 
-        for field, field_name, options in self.get_change_link_fields():
+    def add_change_link(self, relation_field_name, admin_field_name, options):
 
-            self.add_change_link(field, field_name, options)
-
-    def add_change_link(self, field, field_name, options):
-
-        if self.field_already_set(field_name):
+        if self.field_already_set(admin_field_name):
             return
 
-        def make_change_link(field, options):
+        def make_change_link(relation_field_name, options):
 
             def func(instance):
-                return self.get_change_link(instance, field, options)
-            func.short_description = options.get('label') or '{}'.format(field.replace('_', ' '))
-            if options.get('admin_order_field'):
-                func.admin_order_field = options['admin_order_field']
+                return self.get_change_link(instance, relation_field_name, options)
+
+            decorate_link_func(func, relation_field_name, options)
 
             return func
 
-        setattr(self, field_name, make_change_link(field, options))
+        setattr(self, admin_field_name, make_change_link(relation_field_name, options))
 
     def add_changelist_link_fields(self):
-
-        for relation_name, field_name, options in self.get_changelist_link_fields():
-
-            self.add_changelist_link(relation_name, field_name, options)
+        for relation_name, admin_field_name, options in self.get_changelist_link_fields():
+            self.add_changelist_link(relation_name, admin_field_name, options)
 
     def get_changelist_link_fields(self):
 
         for link in self.changelist_links:
 
             if type(link) == tuple:
-                relation_name, options = (link[0], link[1])
+                field_name, options = (link[0], link[1])
             else:
-                relation_name, options = (link, {})
+                field_name, options = (link, {})
 
-            field_name = '{}_link'.format(relation_name)
+            admin_field_name = '{}_link'.format(field_name)
 
-            yield relation_name, field_name, options
+            yield field_name, admin_field_name, options
 
-    def add_changelist_link(self, relation_name, field_name, options):
+    def add_changelist_link(self, relation_name, admin_field_name, options):
 
-        if self.field_already_set(field_name):
+        if self.field_already_set(admin_field_name):
             return
 
         def make_changelist_link(relation_name, options):
 
             def func(instance):
                 return self.get_changelist_link(instance, relation_name, options)
-            func.short_description = options.get('label') or underscore_to_capitalize(relation_name)
-            if options.get('admin_order_field'):
-                func.admin_order_field = options['admin_order_field']
+
+            decorate_link_func(func, relation_name, options)
 
             return func
 
-        setattr(self, field_name, make_changelist_link(relation_name, options))
+        setattr(self, admin_field_name, make_changelist_link(relation_name, options))
 
-    def field_already_set(self, field_name):
-        return getattr(self, field_name, None)
+    def field_already_set(self, admin_field_name):
+        return getattr(self, admin_field_name, None)
 
     def get_link_field(self, url, label):
         return format_html('<a href="{}" class="changelink">{}</a>', url, label)
