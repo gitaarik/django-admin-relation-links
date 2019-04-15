@@ -51,6 +51,15 @@ class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     change_links = ['group']  # Just specify the name of the `ForeignKey` field
 ```
 
+It is possible to show links on admin *list page* as well:
+
+```python
+@admin.register(Member)
+class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
+    list_display = ['name', 'group_link']  # Show link to group *change page* on member *list page*
+    change_links = ['group']  # Just specify the name of the `ForeignKey` field
+```
+
 
 ### Extra options
 
@@ -65,6 +74,20 @@ class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
             'label': 'All members',  # Used as label for the link
             'model': 'Member',  # Specify a different model, you can also specify an app using `app.Member`
             'lookup_filter': 'user_group'  # Specify the GET parameter used for filtering the queryset
+        })
+    ]
+```
+
+When showing links on the list page, you can optionally specify the order field
+to order on that column:
+
+```python
+@admin.register(Group)
+class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
+    list_display = ['name', 'group_link']
+    change_links = [
+        ('group', {
+            'admin_order_field': 'name',  # Allow to sort members by `group_link` column, using `name` field of the `group` relation
         })
     ]
 ```
