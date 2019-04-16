@@ -144,5 +144,9 @@ class AdminChangeLinksMixin():
             self.fields = list(self.fields) + [field_name]
 
     def _add_field_to_readonly_fields(self, field_name):
-        if self.readonly_fields and field_name not in self.readonly_fields:
+
+        if not self.readonly_fields:
+            self.readonly_fields = []
+
+        if field_name not in self.readonly_fields:
             self.readonly_fields = list(self.readonly_fields) + [field_name]
