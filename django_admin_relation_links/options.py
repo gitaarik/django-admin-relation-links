@@ -16,14 +16,6 @@ def parse_field_config(links_config):
         yield model_field_name, admin_field_name, options
 
 
-def decorate_link_func(func, model_field_name, options):
-
-    func.short_description = options.get('label') or underscore_to_capitalize(model_field_name)
-
-    if options.get('admin_order_field'):
-        func.admin_order_field = options['admin_order_field']
-
-
 def underscore_to_capitalize(string):
     return string.replace('_', ' ').capitalize()
 
@@ -57,13 +49,18 @@ class AdminChangeLinksMixin():
         def make_change_link(model_field_name, options):
             def func(instance):
                 return self._get_change_link(instance, model_field_name, options)
-            decorate_link_func(func, model_field_name, options)
+            self.decorate_link_func(func, model_field_name, options)
             return func
 
         self._add_admin_field(admin_field_name, make_change_link(model_field_name, options))
 
     def _get_change_link(self, instance, field, options):
+
         target_instance = getattr(instance, field)
+
+        if not target_instance:
+            return
+
         return get_link_field(
             reverse(
                 '{}:{}_{}_change'.format(
@@ -85,7 +82,7 @@ class AdminChangeLinksMixin():
         def make_changelist_link(model_field_name, options):
             def func(instance):
                 return self._get_changelist_link(instance, model_field_name, options)
-            decorate_link_func(func, model_field_name, options)
+            self.decorate_link_func(func, model_field_name, options)
             return func
 
         self._add_admin_field(admin_field_name, make_changelist_link(model_field_name, options))
@@ -130,6 +127,24 @@ class AdminChangeLinksMixin():
             model = model_meta.model_name
 
         return app, model
+
+    def decorate_link_func(self, func, model_field_name, options):
+
+        func.short_description = options.get('label') or underscore_to_capitalize(model_field_name)
+
+        if options.get('admin_order_field'):
+            func.admin_order_field = options['admin_order_field']
+        else:
+            try:
+                field = self.model._meta.get_field(model_field_name)
+            except:
+                pass
+            else:
+                if hasattr(field.related_model._meta, 'ordering'):
+                    func.admin_order_field = '{}__{}'.format(
+                        field.name,
+                        field.related_model._meta.ordering[0].replace('-', '')
+                    )
 
     def _add_admin_field(self, field_name, func):
 
