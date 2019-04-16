@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='django-admin-relation-links',
     keywords='django admin relation foreignkey link',
-    version='0.1.1',
+    version='0.2.0',
     author='gitaarik',
     author_email='gitaarik@gmail.com',
     packages=['django_admin_relation_links'],
