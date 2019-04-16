@@ -2,9 +2,27 @@
 
 An easy way to add links to relations in the Django Admin site.
 
+
+#### Member list page:
+![Member list page](/screenshots/member-list-page.png)
+---------------------------
+
+#### Member change page:
+![Member change page](/screenshots/member-change-page.png)
+---------------------------
+
+#### Group list page:
+![Member list page](/screenshots/group-list-page.png)
+---------------------------
+
+#### Group change page:
+![Member change page](/screenshots/group-change-page.png)
+
+
 ### Install
 
     pip install django-admin-relation-links
+
 
 ### How to use
 
@@ -57,7 +75,7 @@ It is possible to show links on admin *list page* as well:
 @admin.register(Member)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name', 'group_link']  # Show link to group *change page* on member *list page*
-    change_links = ['group']  # Just specify the name of the `ForeignKey` field
+    change_links = ['group']
 ```
 
 
@@ -78,8 +96,10 @@ class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     ]
 ```
 
-When showing links on the list page, you can optionally specify the order field
-to order on that column:
+When showing links on the list page, when you use that field for ordering, the
+default ordering field is the first field in the `ordering` option on the
+`Meta` class of the model of the related field. You can specify an alternative
+ordering like this:
 
 ```python
 @admin.register(Group)
