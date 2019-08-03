@@ -48,15 +48,15 @@ class AdminChangeLinksMixin():
 
         def make_change_link(model_field_name, options):
             def func(instance):
-                return self._get_change_link(instance, model_field_name, options)
+                return self._get_change_link(instance, model_field_name, admin_field_name, options)
             self.decorate_link_func(func, model_field_name, options)
             return func
 
         self._add_admin_field(admin_field_name, make_change_link(model_field_name, options))
 
-    def _get_change_link(self, instance, field, options):
+    def _get_change_link(self, instance, model_field_name, admin_field_name, options):
 
-        target_instance = getattr(instance, field)
+        target_instance = getattr(instance, model_field_name)
 
         if not target_instance:
             return
@@ -70,8 +70,17 @@ class AdminChangeLinksMixin():
                 ),
                 args=[target_instance.pk]
             ),
-            str(target_instance)
+            self.link_label(admin_field_name, target_instance)
         )
+
+    def link_label(self, admin_field_name, target_instance):
+
+        label_method_name = '{}_label'.format(admin_field_name)
+
+        if hasattr(self, label_method_name):
+            return getattr(self, label_method_name)(target_instance)
+
+        return str(target_instance)
 
     def _add_changelist_link_fields(self):
         for model_field_name, admin_field_name, options in parse_field_config(self.changelist_links):

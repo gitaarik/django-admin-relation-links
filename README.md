@@ -69,13 +69,31 @@ class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     change_links = ['group']  # Just specify the name of the `ForeignKey` field
 ```
 
-It is possible to show links on admin *list page* as well:
+
+### List page links
+
+It is possible to show links on admin *list page* as well, using the field `{field_name}_link`:
 
 ```python
 @admin.register(Member)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name', 'group_link']  # Show link to group *change page* on member *list page*
     change_links = ['group']
+```
+
+
+### Link label
+
+By default, the label of the link is the string representation of the model
+instance. You can change the label by creating a method named
+`{field_name}_link_label()` like this:
+
+```python
+    def group_link_label(self, group):
+        return '{} ({} members)'.format(
+            group.name,
+            group.members.count()
+        )
 ```
 
 
@@ -95,6 +113,9 @@ class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
         })
     ]
 ```
+
+
+### List page ordering
 
 When showing links on the list page, when you use that field for ordering, the
 default ordering field is the first field in the `ordering` option on the
