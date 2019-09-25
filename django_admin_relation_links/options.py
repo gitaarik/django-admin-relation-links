@@ -149,7 +149,7 @@ class AdminChangeLinksMixin():
             except:
                 pass
             else:
-                if hasattr(field.related_model._meta, 'ordering'):
+                if hasattr(field.related_model._meta, 'ordering') and len(field.related_model._meta.ordering) > 0:
                     func.admin_order_field = '{}__{}'.format(
                         field.name,
                         field.related_model._meta.ordering[0].replace('-', '')
