@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: django-admin-relation-links
-Version: 0.2.3
+Version: 0.2.4
 Summary: An easy way to add links to relations in the Django Admin site.
 Home-page: https://github.com/gitaarik/django-admin-relation-links/
 Author: gitaarik
@@ -21,19 +21,19 @@ Description: # Django Admin relation links
         With the help of this app you can easily create these links:
         
         #### Member list page:
-        ![Member list page](/screenshots/member-list-page.png)
+        ![Member list page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/member-list-page.png)
         ---------------------------
         
         #### Member change page:
-        ![Member change page](/screenshots/member-change-page.png)
+        ![Member change page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/member-change-page.png)
         ---------------------------
         
         #### Group list page:
-        ![Member list page](/screenshots/group-list-page.png)
+        ![Member list page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/group-list-page.png)
         ---------------------------
         
         #### Group change page:
-        ![Member change page](/screenshots/group-change-page.png)
+        ![Member change page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/group-change-page.png)
         
         
         ### Install
