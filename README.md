@@ -3,6 +3,15 @@
 An easy way to add links to relations in the Django Admin site.
 
 
+### Preview
+
+Imagine you have admin pages for 2 models: `Member` and `Group`. `Member` has a `ForeignKey` relation to `Group`.
+
+- When you look at a member, you want to easily navigate to its group.
+- When you look at a group, you want to easily navigate to a list of the members in that group.
+
+With the help of this app you can easily create these links:
+
 #### Member list page:
 ![Member list page](/screenshots/member-list-page.png)
 ---------------------------
