@@ -13,19 +13,19 @@ Imagine you have admin pages for 2 models: `Member` and `Group`. `Member` has a 
 With the help of this app you can easily create these links:
 
 #### Member list page:
-![Member list page](/screenshots/member-list-page.png)
+![Member list page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/member-list-page.png)
 ---------------------------
 
 #### Member change page:
-![Member change page](/screenshots/member-change-page.png)
+![Member change page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/member-change-page.png)
 ---------------------------
 
 #### Group list page:
-![Member list page](/screenshots/group-list-page.png)
+![Member list page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/group-list-page.png)
 ---------------------------
 
 #### Group change page:
-![Member change page](/screenshots/group-change-page.png)
+![Member change page](https://raw.githubusercontent.com/gitaarik/django-admin-relation-links/master/screenshots/group-change-page.png)
 
 
 ### Install

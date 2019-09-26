@@ -7,7 +7,7 @@ with open('README.md', 'r') as fh:
 setup(
     name='django-admin-relation-links',
     keywords='django admin relation foreignkey link',
-    version='0.2.3',
+    version='0.2.4',
     author='gitaarik',
     author_email='gitaarik@posteo.net',
     packages=['django_admin_relation_links'],
