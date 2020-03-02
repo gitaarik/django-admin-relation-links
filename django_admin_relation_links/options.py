@@ -24,12 +24,6 @@ def get_link_field(url, label):
     return format_html('<a href="{}" class="changelink">{}</a>', url, label)
 
 
-def get_reverse_relation_name(instance, model_field_name):
-    for obj in instance._meta.related_objects:
-        if obj.name == model_field_name:
-            return obj.remote_field.name
-
-
 class AdminChangeLinksMixin():
 
     change_links = []
@@ -107,7 +101,7 @@ class AdminChangeLinksMixin():
             )
 
         def get_lookup_filter():
-            return options.get('lookup_filter') or get_reverse_relation_name(instance, model_field_name)
+            return options.get('lookup_filter') or instance._meta.get_field(model_field_name).field.name
 
         def get_label():
             return (
