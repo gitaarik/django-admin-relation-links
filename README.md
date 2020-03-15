@@ -70,7 +70,8 @@ from django_admin_relation_links import AdminChangeLinksMixin
 class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
     changelist_links = ['members']  # Use the `related_name` of the `Member.group` field
-
+    # If you have no `related_name` specified on your model, it will use the default
+    `related_name` specified by Django.
 
 @admin.register(Member)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
