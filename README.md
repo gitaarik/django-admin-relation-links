@@ -60,6 +60,7 @@ class Member(models.Model):
 Then in the admin you can add links on the `Group` *change page* to the
 `Member` *change list page* (all the members of that group) and on the `Member`
 *change page* a link to the `Group` *change page* (the group of that member).
+Use the `changelist_links` and `change_links` fields:
 
 ```python
 from django.contrib import admin
@@ -68,15 +69,20 @@ from django_admin_relation_links import AdminChangeLinksMixin
 
 @admin.register(Group)
 class GroupAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
+
     list_display = ['name']
-    changelist_links = ['members']  # Use the `related_name` of the `Member.group` field
-    # If you have no `related_name` specified on your model, it will use the default
-    `related_name` specified by Django.
+
+    # Use the `related_name` of the `Member.group` field
+    # If you have no `related_name` specified on your model, use the default
+    # `related_name` assigned by Django.
+    changelist_links = ['members']
 
 @admin.register(Member)
 class MemberAdmin(AdminChangeLinksMixin, admin.ModelAdmin):
     list_display = ['name']
-    change_links = ['group']  # Just specify the name of the `ForeignKey` field
+
+    # Here we just specify the name of the `ForeignKey` field.
+    change_links = ['group']
 ```
 
 
